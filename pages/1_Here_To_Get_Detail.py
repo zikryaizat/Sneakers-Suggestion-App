@@ -75,7 +75,8 @@ def coverPhoto_ai(msg):
     return image_url
 
 # Load the shoe data
-data = pd.read_csv(r"C:\Users\youth\OneDrive\Desktop\AI08_GPT\Project\cleaned_data1.csv")
+CSV_PATH = os.path.join(os.getcwd(),'cleaned_data1.csv')
+data = pd.read_csv(CSV_PATH)
 
 # Find the closest matching shoe name in the dataset
 def find_closest_match(shoe_name, data):
