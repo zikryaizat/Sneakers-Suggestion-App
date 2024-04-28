@@ -1,6 +1,5 @@
 import streamlit as st
 import os
-import pathlib
 import textwrap
 from dotenv import load_dotenv
 import requests
@@ -29,9 +28,9 @@ st.markdown(
 )
 st.markdown(
     """
-    This app will give sneakers suggestions for you. Select descriptions by selecting input options on the sidebar.
+    This app will give sneakers suggestions for you. Write your own occasion in the text box or select descriptions by selecting your personal criteria on the sidebar.
 
-    * **Model:** Gemini Pro
+    * **Model:** Gemini 1.5 Pro
     """
 )
 
@@ -204,7 +203,27 @@ def suggested_shoe_ai(desc_input):
     * Asics Gel-Kayano 28: Asics Gel-Kayano series is known for its stability and support, making it an excellent choice for runners with overpronation or seeking extra support on their runs.
     """
 
-    user_input = f"You are a shoe or sneaker enthusiast with knowledge about shoes and sneakers. Based on price range of 20 to 100 Usd (Low), 101 to 200 Usd (Mid) and above 201Usd (High) , please provide 5 suggestions of sneakers for each price range, from different brands based on the user's preferences. From each sneakers listed, give details about the released year, colours, material, latest price and state from which website you took the price and collaboration with artists/influencer if there are any. Show the output in tabular form , the length of tables are consistent and in a proper manner and make the price range as the table caption meaning that the output will have 3 tables. Please generate suggestions based on the description: {desc_input}"
+    user_input = f"You are a shoe or sneaker enthusiast with knowledge about shoes and sneakers. Based on price range of 20 to 100 Usd (Low), 101 to 200 Usd (Mid) and above 201Usd (High) , please provide 5 suggestions of sneakers for each price range, from different brands based on the user's preferences. From each sneakers listed, give details about the released year, colours, material, latest price, and state from which website you took the price and collaboration with artists/influencer if there are any, and the link to google search of the sneakers. Show the output in tabular form , the length and width of tables are consistent and in a proper manner and make the price range as the table caption meaning that the output will have 3 tables. Please generate suggestions based on the description: {desc_input}"
+    model = genai.GenerativeModel('gemini-1.5-pro-latest')
+    response = model.generate_content(user_input)
+    suggestion = response.text
+    return suggestion
+
+def suggested_shoe_ai2(input2):
+    system_input = f"You are a shoe or sneaker enthusiast with knowledge about shoes and sneakers. Please provide 5 suggestions of shoes or sneakers from different brands based on the user's preferences."
+
+    example_input = f"Please suggest good shoes for running."
+
+    example_output = f"""
+    Your suggested shoes:
+    * Nike Air Zoom Pegasus 38: The Pegasus line from Nike is renowned for its versatility and comfort, suitable for both long-distance running and everyday training.
+    * Adidas Ultraboost 21: Adidas Ultraboost series offers excellent cushioning and responsiveness, making it ideal for runners seeking both comfort and performance.
+    * Brooks Ghost 14: Brooks Ghost series is known for its plush cushioning and smooth ride, making it a popular choice among neutral runners for both short and long distances.
+    * New Balance Fresh Foam 1080v11: New Balance Fresh Foam 1080v11 offers a supportive and cushioned ride, making it suitable for runners looking for comfort and stability on their runs.
+    * Asics Gel-Kayano 28: Asics Gel-Kayano series is known for its stability and support, making it an excellent choice for runners with overpronation or seeking extra support on their runs.
+    """
+
+    user_input = f"You are a shoe or sneaker enthusiast with knowledge about shoes and sneakers. Based on price range of 20 to 100 Usd (Low), 101 to 200 Usd (Mid) and above 201Usd (High) , please provide 5 suggestions of sneakers for each price range, from different brands based on the user's preferences. From each sneakers listed, give details about the released year, colours, material, latest price and state from which website you took the price and collaboration with artists/influencer if there are any and link to google search of the sneakers. Show the output in tabular form , the length and width of tables are consistent and in a proper manner and make the price range as the table caption meaning that the output will have 3 tables. Please generate suggestions based on the description: {input2}"
     model = genai.GenerativeModel('gemini-pro')
     response = model.generate_content(user_input)
     suggestion = response.text
@@ -213,26 +232,38 @@ def suggested_shoe_ai(desc_input):
 def main():
     desc_text = ""
     desc_input = ""
+    desc_input2 = ""
 
     # User input @ Sidebar
     with st.sidebar:
-        st.header("Input Options")
+        st.header("Enter the occasion for your sneakers here")
+        text_input_prompt = st.text_input("Enter the prompt: ")
+        submit_button = st.button("Find your pair!")
+        st.markdown("<h1 style='text-align: center; font-weight: bold;'>(or)</h1>", unsafe_allow_html=True)
+        st.header("Select your personal criteria here")
         
 
     # Modify desc_input based on user selection
     desc_input = user_input_features(desc_input)
+    
 
     with st.sidebar:
-        submit_button = st.button("Find your pair!")
+        submit_button2 = st.button("Generate your pair!")
     
-    if desc_input and submit_button:
+    if desc_input and submit_button2:
+        st.write(f"Your selection of criteria: **{desc_input}**")
         with st.spinner("Generating suggestion for you"):
             desc_text = suggested_shoe_ai(desc_input)
-    
-            
-    # Display the suggestion
-    st.header("Your Suggested Pair :")
-    st.info(desc_text)
+            # Display the suggestion
+            st.header("Your Suggested Pair :")
+            st.info(desc_text)
+    elif text_input_prompt and submit_button:
+        st.write(f"You entered: **{text_input_prompt}**")
+        with st.spinner("Generating suggestion for you"):
+            desc_text = suggested_shoe_ai2(desc_input2)
+            # Display the suggestion
+            st.header("Your Suggested Pair :")
+            st.info(desc_text)
 
 if __name__ == '__main__':
     main()
