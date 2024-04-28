@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import requests
 import pandas as pd
 from PIL import Image
+import rapidfuzz
 
 
 #Load .env file
@@ -78,9 +79,9 @@ def coverPhoto_ai(msg):
 CSV_PATH = os.path.join(os.getcwd(),'cleaned_data1.csv')
 data = pd.read_csv(CSV_PATH)
 
-# Find the closest matching shoe name in the dataset
 def find_closest_match(shoe_name, data):
-    closest_match = data["Shoes"].iloc[data["Shoes"].apply(lambda x: x.lower()).str.find(shoe_name.lower()).idxmax()]
+    # Assuming you have a list of shoe names called 'shoe_names'
+    closest_match, *_ = rapidfuzz.process.extractOne(shoe_name, data["Shoes"])
     return closest_match
 
 
@@ -116,8 +117,7 @@ def main():
     # Display the price of the closest match
     if closest_match:
         price = data.loc[data["Shoes"] == closest_match]["Price(Usd)"].values[0]
-        price = price.replace('$', '')  # Remove the dollar sign
-        price = float(price)
+        price = float(price.replace('$', ''))
         st.write(f"The price of the shoe, **{closest_match}**, obtained from StockX is **${price:.2f}**")
         st.markdown(
         """
